@@ -72,6 +72,8 @@ function load_state_from_settings()
 	return {
 		files=files,
 		pastebins=settings.get("pastebins", {}),
+		urls=settings.get("urls", {}),
+		github=settings.get("github", {}),
 		startup=settings.get("startup", {})
 	}
 end

@@ -23,7 +23,7 @@ end
 function handle_init(init_data)
 	if init_data.files then
 		for name, file in pairs(init_data.files) do
-			print("[Network::Init] Writing file " .. name .. "...")
+			print("[Init] Writing file " .. name .. "...")
 			write_file(name, file)
 		end
 	end
@@ -32,19 +32,51 @@ function handle_init(init_data)
 		for name, pastebin in pairs(init_data.pastebins) do
 			fs.delete(name)
 			shell.run("pastebin", "get", pastebin, name)
-			print("[Network::Init] Loading pastebin " .. pastebin .. " in file " .. name .. "...")
+			print("[Init] Loading pastebin " .. pastebin .. " in file " .. name .. "...")
+		end
+	end
+
+	if init_data.urls then
+		for name, url in pairs(init_data.urls) do
+			fs.delete(name)
+			shell.run("wget", url, name)
+			print("[Init] Loading URL " .. url .. " in file " .. name .. "...")
+		end
+	end
+
+	if init_data.github then
+		-- github= { "zyuiop/CCPrograms/master"= { "local_file"="target_file"}}
+		-- github= { "zyuiop/CCPrograms"={"..."}}
+		for repo, data in pairs(init_data.github) do
+			-- Check if the branch is already in the repo name
+			_, n = repo:gsub("/", "")
+
+			if n == 0 or n > 2 then
+				print("[Github] Invalid GitHub repo '" .. repo .. "'")
+			else
+				if n == 1 or s:sub(#s) == "/" then
+					if n == 1 then repo = repo + "/" end
+					repo = repo + "master"
+				end
+
+				for name, file in pairs(data) do
+					url = "https://raw.githubusercontent.com/" .. repo .. "/" .. file
+					print("[GitHub] Downloading file " .. file .. " as " .. name .. " from repo " .. repo)
+					shell.run("wget", url, name)
+				end
+			end
 		end
 	end
 
 	if init_data.startup then
 		for i, filename in pairs(init_data.startup) do
-			print("[Network::Init] Starting program " .. filename .. "...")
+			print("[Init] Starting program " .. filename .. "...")
 			local new_shell = shell.openTab(filename)
 			multishell.setTitle(new_shell, filename)
 		end
 	end
 
-	print("[Network::Init] Initialization is complete.")
+	print("[Init] Initialization is complete.")
 end
 
 function connect(server_id)
@@ -62,7 +94,7 @@ function connect(server_id)
 	end
 
 	-- Parse message
-	print("		Host successfully replied with init configuration.")
+	print("		Host replied with init configuration.")
 	handle_init(msg.data)
 
 
@@ -80,12 +112,12 @@ function connect(server_id)
 		["reboot"] = 
 			function (sender, data) 
 				rednet.send(sender, {message="client_goodbye", data={hostname=hostname}}, PROTOCOL)
-				print("[Network::Info] Received reboot packet, ending.")
+				print("[Info] Received reboot packet, ending.")
 				loop = false
 			end,
 		["update"] = 
 			function (sender, data) 
-				print("[Network::Info] Received update packet, applying new init states.")
+				print("[Info] Received update packet, applying states.")
 				handle_init(data)
 			end
 	}
@@ -97,12 +129,12 @@ function connect(server_id)
 			local handler = handlers[p2.message]
 
 			if handler == nil then
-				print("[Network::Warn] Received unknown packet " .. p2.message)
+				print("[Network] Received unknown packet " .. p2.message)
 			else
 				handler(p1, p2.data)
 			end
 		elseif p1 == last_ping_timer then
-			print("[Network::Error] No ping received in the last 30 seconds.")
+			print("[Error] No ping received in the last 30 seconds.")
 			print("[Network] Cancelling connection.")
 			return
 		end
@@ -117,7 +149,7 @@ rednet.open(modem_position)
 rednet.host(LOOKUP_CLIENT, hostname)
 
 while true do
-	print("[INIT] Trying to find a Craftsible Server...")
+	print("[Init] Trying to find a Craftsible Server...")
 	host = rednet.lookup(LOOKUP_SERVER)
 
 	if host == nil then

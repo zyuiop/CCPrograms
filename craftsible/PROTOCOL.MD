@@ -62,7 +62,9 @@ Example:
 This packet is returned by the server with the configuration of the client as a `data` field. Specifically, the `data` table may contain:
  - `pastebins`, a table in which each key is a target path on the client filesystem, and each value is the ID of a pastebin that must **replace** the file at that path
  - `files`, a table in which each key is a target path on the client filesystem, and each value is the content of the file that must **replace** the file at that path
- - `startup`, a list of programs that must be executed by the client after applying the two previous steps.
+ - `urls`, a table in which each key is a target path on the client filesystem, and each value is the URL of the file that must **replace** the file at that path
+ - `github`, a table in which each key is a GitHub repository name (form `org/repo` or `org/repo/branch`) and each value is a table in which each key is a target path on the client filesystem, and each value is a file in the repo that must **replace** the file at that local path
+ - `startup`, a list of programs that must be executed by the client after applying the four previous steps
 
 After receiving this packet, the client will expect regular pings from the server. Otherwise, it will consider that the server has crashed and reboot itself.
 

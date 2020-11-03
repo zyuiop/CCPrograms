@@ -41,6 +41,8 @@ When a host connects, the following file is loaded first: `/craftsible/hosts/<ho
 This file is a standard ComputerCraft settings file. It **CAN** contain the following fields:
  - `pastebins`: a table ; requires the client to download some pastebin files. The key of each element is the **target file name/path** and the value is the **pastebin id**. For example, to replace startup script at boot you can do `{ pastebins = { ["startup"] = "2FeYawja"}}`.
  - `files`: a table ; sends files from the server to the client. The key of each element is the **target file name/path** on the client, and the value is the **local file path on the server, relative to `/craftsible/dist/`.**
+ - `urls`: a table ; requires the client to download some files. The key of each element is the **target file name/path** and the value is the URL of the file to load.
+ - `github`: a table of tables ; requires the client to download some files from GitHub. Each key is a GitHub repo, in the form `org/repo` or `org/repo/branch`, and each value is a table. The key of each element of that table is the **target file name/path** and the value is the path of the file to load in the repo.
  - `startup`: a list ; lists programs that must be executed on startup. These programs will be executed **after** downloading files and pastebins. They will each be executed in a new multishell.
  - `configs`: a list ; lists general configuration that must apply to this host (see below).
 
