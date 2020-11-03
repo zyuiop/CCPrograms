@@ -55,8 +55,8 @@ function handle_init(init_data)
 				print("[Github] Invalid GitHub repo '" .. repo .. "'")
 			else
 				if n == 1 or s:sub(#s) == "/" then
-					if n == 1 then repo = repo + "/" end
-					repo = repo + "master"
+					if n == 1 then repo = repo .. "/" end
+					repo = repo .. "master"
 				end
 
 				for name, file in pairs(data) do
