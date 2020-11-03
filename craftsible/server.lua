@@ -78,6 +78,13 @@ function load_state_from_settings()
 	}
 end
 
+function create_state(hostname, configs)
+	settings.clear()
+	settings.set("configs", configs)
+	settings.save(HOSTS_PATH .. "/" .. hostname)
+end
+
+
 function merge_recursive(src, into)
 	local target = into
 	for k, v in pairs(src) do
@@ -230,6 +237,20 @@ function executeshell()
 			rednet.send(tonumber(args[1]), {message= "update", data= state}, PROTOCOL)
 		end,
 
+		["newclient"] = function(args)
+			if #args < 2 then
+				print("Usage: newclient <host> [configs...]")
+				return
+			end
+
+			local hostname = args[1]
+			table.remove(args, 1)
+
+			create_state(hostname, args)
+			print("Client configuration created.")
+		end,
+
+
 		["help"] = function(args)
 			print("List of commands:")
 			print("list: lists the connected clients")
@@ -238,6 +259,7 @@ function executeshell()
 			print("run <id> <program>: runs a program on a host")
 			print("push <id> <local file> <target file>: sends a file to a host")
 			print("pastebin <id> <pastebin ID> <target file>: asks the host to download a pastebin")
+			print("newclient <host> [configs...]: creates a client")
 		end
 	}
 
