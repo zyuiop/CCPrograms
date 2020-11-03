@@ -67,3 +67,18 @@ This means that at boot, all clients will update their `startup` script (the one
 ## Commands
 
 The server has commands. Type `help` in the server console to see them.
+
+## Planned features
+
+We plan to add the following:
+
+ - Fix command interpreter in the server
+ - Add multi-server synchronization (to enable easy cluster deployment)
+ - Add smoother config edition than sending whole files?
+ - Recursive configs?
+ - Integrated package manager/reference to packman?
+ - Integrated remote shell/reference to nsh?
+
+
+
+
