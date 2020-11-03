@@ -66,6 +66,10 @@ This packet is returned by the server with the configuration of the client as a 
 
 After receiving this packet, the client will expect regular pings from the server. Otherwise, it will consider that the server has crashed and reboot itself.
 
+### 3. Client -> Server: `client_goodbye`
+
+Graceful disconnection. Sent by a client before disconnecting. The server should remove the sending client from its list of connected clients.
+
 ## Ping protocol
 
 The server should regularly make sure that all clients are still online, by sending the `server_ping` packet. It should be sent every 15 seconds, and a client will crash if it is not received at least every 30 seconds.

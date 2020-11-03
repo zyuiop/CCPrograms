@@ -124,7 +124,7 @@ end
 
 function executeshell()
 	local args = {}
-	cmd:gsub("%a+", function(c) table.insert(args, c) end)
+	for arg in cmd:gmatch("%w+") do table.insert(args, arg) end
 
 	commands = {
 		["list"] = function(args)
@@ -140,7 +140,7 @@ function executeshell()
 				return
 			end
 
-			local client = clients[args[1]]
+			local client = clients[tonumber(args[1])]
 
 			if client == nil then
 				print("No client with this id. Please run 'list' to get a list of all clients.")
@@ -148,7 +148,7 @@ function executeshell()
 			end
 
 			local state = get_state(client)
-			rednet.send(id, {message= "update", data= state}, PROTOCOL)
+			rednet.send(tonumber(args[1]), {message= "update", data= state}, PROTOCOL)
 		end,
 
 		["reboot"] = function(args)
@@ -157,13 +157,13 @@ function executeshell()
 				return
 			end
 
-			local client = clients[args[1]]
+			local client = clients[tonumber(args[1])]
 
 			if client == nil then
 				print("No client with this id. Please run 'list' to get a list of all clients.")
 				return
 			end
-			rednet.send(id, {message= "reboot"}, PROTOCOL)
+			rednet.send(tonumber(args[1]), {message= "reboot"}, PROTOCOL)
 		end,
 
 		["run"] = function(args)
@@ -172,7 +172,7 @@ function executeshell()
 				return
 			end
 
-			local client = clients[args[1]]
+			local client = clients[tonumber(args[1])]
 
 			if client == nil then
 				print("No client with this id. Please run 'list' to get a list of all clients.")
@@ -181,7 +181,7 @@ function executeshell()
 
 			local program_args = table.remove(table.remove(program_args, 1), 1)
 			local state = {startup= program_args}
-			rednet.send(id, {message= "update", data= state}, PROTOCOL)
+			rednet.send(tonumber(args[1]), {message= "update", data= state}, PROTOCOL)
 		end,
 
 		["push"] = function(args)
@@ -190,7 +190,7 @@ function executeshell()
 				return
 			end
 
-			local client = clients[args[1]]
+			local client = clients[tonumber(args[1])]
 
 			if client == nil then
 				print("No client with this id. Please run 'list' to get a list of all clients.")
@@ -207,7 +207,7 @@ function executeshell()
 			f.close()
 
 			local state = {files= {[args[3]] = data}}
-			rednet.send(id, {message= "update", data= state}, PROTOCOL)
+			rednet.send(tonumber(args[1]), {message= "update", data= state}, PROTOCOL)
 		end,
 
 		["pastebin"] = function(args)
@@ -216,7 +216,7 @@ function executeshell()
 				return
 			end
 
-			local client = clients[args[1]]
+			local client = clients[tonumber(args[1])]
 
 			if client == nil then
 				print("No client with this id. Please run 'list' to get a list of all clients.")
@@ -225,7 +225,7 @@ function executeshell()
 
 			local state = {pastebins={}}
 			state.pastebins[args[3]] = args[2]
-			rednet.send(id, {message= "update", data= state}, PROTOCOL)
+			rednet.send(tonumber(args[1]), {message= "update", data= state}, PROTOCOL)
 		end,
 
 		["help"] = function(args)
@@ -256,24 +256,27 @@ handlers = {
 		end,
 	["client_hello"] = function(id, data) 
 			clients[id] = data.hostname
-			log("[Network::Connect] New client with id " .. id .. " and hostname " .. data.hostname)
+			log("[Connect] New client. ID=" .. id .. ", Hostname=" .. data.hostname)
 			local state = get_state(data.hostname)
 
 			rednet.send(id, {message= "server_hello", data= state}, PROTOCOL)
 		end,
 	["client_init"] = function(id, data)
-			log("[Network::Info] Stateless client download from computer " .. id)
+			log("[Stateless] Client download from computer " .. id)
 
 			local data = io.input(CLIENT_PATH):read("a")
 			rednet.send(id, {message= "client_payload", data= data}, PROTOCOL)
 		end,
-
+	["client_goodbye"] = function(id, data)
+			log("[Goodbye] Client " .. id .. " disconnected.")
+			clients[id] = nil
+		end,
 }
 
 rednet.open(modem_position)
 rednet.host(LOOKUP_SERVER, hostname)
 
-log("[Network::Init] Network is ready, listening for new clients.")
+log("[Init] Network is ready, listening for new clients.")
 
 ping_timer = os.startTimer(15)
 pong_timer = 0
@@ -285,7 +288,7 @@ while true do
 		local handler = handlers[p2.message]
 
 		if handler == nil then
-			log("[Network::Warn] Received unknown packet '" .. p2.message .. "'")
+			log("[Network] Received unknown packet '" .. p2.message .. "'")
 		else
 			handler(p1, p2.data)
 		end
@@ -311,7 +314,7 @@ while true do
 	elseif event == "timer" and p2 == pong_timer then
 		for c, host in clients do
 			if received_pings[c] ~= true then
-				log("[Network::Timeout] Client " .. c .. " (host: ".. host ..") timed out.")
+				log("[Timeout] Client " .. c .. " (host: ".. host ..") timed out.")
 				clients[c] = nil
 			end
 		end

@@ -47,10 +47,12 @@ f:close()
 
 print("Done, starting.")
 
-shell = shell.openTab("net_startup.lua")
-multishell.setTitle(shell, "Craftsible Client")
-multishell.setTitle(multishell.getCurrent(), "Shell")
-multishell.setFocus(shell)
+sh = sh.openTab("shell")
+multishell.setTitle(shell, "Shell")
+multishell.setTitle(multishell.getCurrent(), "Craftsible Client")
 
-print("Startup complete")
-print("Welcome to your shell :)")
+shell.run("net_startup.lua")
+
+print("Terminated. Rebooting in 3 seconds.")
+os.sleep(3)
+os.reboot()
