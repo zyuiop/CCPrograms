@@ -84,6 +84,30 @@ function create_state(hostname, configs)
 	settings.save(HOSTS_PATH .. "/" .. hostname)
 end
 
+function github_sync()
+	settings.load(BASE_PATH .. "/github.conf")
+
+	for repo, data in pairs(settings.get("github")) do
+		-- Check if the branch is already in the repo name
+		_, n = repo:gsub("/", "")
+
+		if n == 0 or n > 2 then
+			print("[Github] Invalid GitHub repo '" .. repo .. "'")
+		else
+			if n == 1 or s:sub(#s) == "/" then
+				if n == 1 then repo = repo .. "/" end
+				repo = repo .. "master"
+			end
+
+			for name, file in pairs(data) do			
+				fs.delete(name)
+				url = "https://raw.githubusercontent.com/" .. repo .. "/" .. file
+				print("[GitHub] Downloading file " .. file .. " as " .. name .. " from repo " .. repo)
+				shell.run("wget", url, name)
+			end
+		end
+	end
+end
 
 function merge_recursive(src, into)
 	local target = into
@@ -260,6 +284,7 @@ function executeshell()
 			print("push <id> <local file> <target file>: sends a file to a host")
 			print("pastebin <id> <pastebin ID> <target file>: asks the host to download a pastebin")
 			print("newclient <host> [configs...]: creates a client")
+			print("sync: synchronizes local files from remote GitHub repositories")
 		end
 	}
 

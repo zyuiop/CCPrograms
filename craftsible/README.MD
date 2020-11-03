@@ -46,6 +46,8 @@ This file is a standard ComputerCraft settings file. It **CAN** contain the foll
  - `startup`: a list ; lists programs that must be executed on startup. These programs will be executed **after** downloading files and pastebins. They will each be executed in a new multishell.
  - `configs`: a list ; lists general configuration that must apply to this host (see below).
 
+> :warning: GitHub seems to cause issues. We advise you to use pastebin, or to set github synchronization rules in `/craftsible/github.conf` then use the "sync" command.
+
 The `configs` list is used to load "generic" configuration values. Each configuration must correspond to a file in `/craftsible/configs/` (for example, config `default` is in file `/craftsible/configs/default`). Adding a config that doesn't exist in a `configs` list has no effect.
 
 A `config` file is a standard ComputerCraft settings file. It can contain `pastebins`, `files` and `startup` fields. Please note that recursive `configs` fields are not implemented yet (e.g. a configuration cannot have a `configs` field itself).
