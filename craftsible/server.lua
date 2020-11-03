@@ -88,30 +88,7 @@ function create_state(hostname, configs)
 	settings.save(HOSTS_PATH .. "/" .. hostname)
 end
 
-function github_sync()
-	settings.load(BASE_PATH .. "/github.conf")
 
-	for repo, data in pairs(settings.get("github")) do
-		-- Check if the branch is already in the repo name
-		_, n = repo:gsub("/", "")
-
-		if n == 0 or n > 2 then
-			print("[Github] Invalid GitHub repo '" .. repo .. "'")
-		else
-			if n == 1 or s:sub(#s) == "/" then
-				if n == 1 then repo = repo .. "/" end
-				repo = repo .. "master"
-			end
-
-			for name, file in pairs(data) do			
-				fs.delete(name)
-				url = "https://raw.githubusercontent.com/" .. repo .. "/" .. file
-				print("[GitHub] Downloading file " .. file .. " as " .. name .. " from repo " .. repo)
-				shell.run("wget", url, name)
-			end
-		end
-	end
-end
 
 function merge_recursive(src, into)
 	local target = into
@@ -157,6 +134,31 @@ function log(str)
 	term.clearLine()
 	print(str)
 	printshell()
+end
+
+function github_sync()
+	settings.load(BASE_PATH .. "/github.conf")
+
+	for repo, data in pairs(settings.get("github")) do
+		-- Check if the branch is already in the repo name
+		_, n = repo:gsub("/", "")
+
+		if n == 0 or n > 2 then
+			log("[Github] Invalid GitHub repo '" .. repo .. "'")
+		else
+			if n == 1 or s:sub(#s) == "/" then
+				if n == 1 then repo = repo .. "/" end
+				repo = repo .. "master"
+			end
+
+			for name, file in pairs(data) do			
+				fs.delete(name)
+				url = "https://raw.githubusercontent.com/" .. repo .. "/" .. file
+				log("[GitHub] Downloading file " .. file .. " as " .. name .. " from repo " .. repo)
+				shell.run("wget", url, name)
+			end
+		end
+	end
 end
 
 function executeshell()
@@ -337,6 +339,7 @@ log("[Init] Network is ready, listening for new clients.")
 
 ping_timer = os.startTimer(15)
 pong_timer = 0
+sync_timer = os.startTimer(60 * 10)
 
 while true do
 	local event, p1, p2, p3 = os.pullEventRaw()
@@ -357,6 +360,11 @@ while true do
 		pong_timer = os.startTimer(5)
 		ping_timer = os.startTimer(15)
 		broadcast({message= "server_ping"})
+	elseif event == "timer" and p1 == sync_timer then
+		log("[GitHub] Automatic GitHub sync...")
+		github_sync()
+		sync_timer = os.startTimer(60 * 10)
+		log("[GitHub] Completed Automatic Github Sync.")
 	elseif event == "char" then
 		cmd = cmd .. p1
 		printshell()
