@@ -59,7 +59,8 @@ function handle_init(init_data)
 					repo = repo .. "master"
 				end
 
-				for name, file in pairs(data) do
+				for name, file in pairs(data) do			
+					fs.delete(name)
 					url = "https://raw.githubusercontent.com/" .. repo .. "/" .. file
 					print("[GitHub] Downloading file " .. file .. " as " .. name .. " from repo " .. repo)
 					shell.run("wget", url, name)
