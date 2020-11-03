@@ -47,8 +47,8 @@ f:close()
 
 print("Done, starting.")
 
-sh = sh.openTab("shell")
-multishell.setTitle(shell, "Shell")
+sh = shell.openTab("shell")
+multishell.setTitle(sh, "Shell")
 multishell.setTitle(multishell.getCurrent(), "Craftsible Client")
 
 shell.run("net_startup.lua")
