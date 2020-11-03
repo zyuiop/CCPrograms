@@ -64,9 +64,13 @@ function load_state_from_settings()
 	local files = {}
 
 	for name, path in pairs(settings.get("files", {})) do
-		local f = io.open(DIST_PATH .. "/" .. path, "r")
-		files[name] = f:read("a")
-		f:close()
+		if not fs.exists(DIST_PATH .. "/" .. path) then
+			print("[Error] File not found " .. path)
+		else
+			local f = io.open(DIST_PATH .. "/" .. path, "r")
+			files[name] = f:read("a")
+			f:close()
+		end
 	end
 
 	return {
