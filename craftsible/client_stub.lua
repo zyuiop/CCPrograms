@@ -11,3 +11,4 @@ url = "https://raw.githubusercontent.com/" .. ORG .. "/" .. REPO .. "/" .. BRANC
 path = shell.getRunningProgram()
 fs.delete(path)
 shell.run("wget", url, path)
+shell.run(path)
