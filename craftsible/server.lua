@@ -274,6 +274,10 @@ function executeshell()
 			print("Client configuration created.")
 		end,
 
+		["sync"] = function(args)
+			github_sync()
+			print("Done.")
+		end,
 
 		["help"] = function(args)
 			print("List of commands:")
