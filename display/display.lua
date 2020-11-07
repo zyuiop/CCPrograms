@@ -104,7 +104,8 @@ debug("Preparing to add sensors.")
 
 sensors = {
 addSensor("Lave", "tanks", "TANK", colors.orange, read_sensors),
-addSensor("Oil" , "oil"  , "TANK", colors.purple, read_sensors)
+addSensor("Oil" , "oil"  , "TANK", colors.purple, read_sensors),
+addSensor("Steam" , "steam"  , "TANK", colors.lightGray, read_sensors)
 }
 
 debug("All sensors added to the system.")
